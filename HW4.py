@@ -237,7 +237,7 @@ else:
     pos_a=nx.spring_layout(rg,iterations=50, scale=0.05, weight='wl')
     with open('pos.pickle', 'wb') as f:
         pickle.dump(pos_a, f)
-"""
+
 distances = [min([pathLength(rg, s, v) for s in seed]) for v in rg]
 sizes = [max([600 -(500*(d)),5]) for d in distances]
 labels = {}
@@ -250,8 +250,7 @@ plt.show()
 plt.savefig('fig/initial_graph_with_seeds')
 plt.clf()
 plt.cla()
-"""
-"""
+
 lc = [(n,rg.node[n]['load_centrality']) for n in rg.nodes]
 ord_lc=sorted(lc,key=itemgetter(1),reverse=True)
 labels = {}
@@ -260,23 +259,20 @@ for k,v in ord_lc[0:5]:
 
 sizes = [3000*rg.node[n]['load_centrality'] for n in rg.nodes]
 colors = [3000*rg.node[n]['load_centrality'] for n in rg.nodes]
-nx.draw_networkx(rg, pos=pos_a,arrows=False, with_labels=True,node_size=sizes,width=0.1,style='dashed',cmap = plt.get_cmap("viridis_r"),node_color=colors,labels=labels )
-plt.show()
-plt.clf()
-plt.cla()
+fig = plt.figure(num=None, figsize=(15, 10), dpi=80, facecolor='w', edgecolor='k')
+nx.draw_networkx(rg, pos=pos_a,arrows=False, with_labels=True,node_size=[3000*lc[n] for n in rg.nodes],width=0.1,style='dashed',cmap = plt.get_cmap("viridis_r"),node_color=[3000*lc[n] for n in rg.nodes],labels=labels )
+fig.savefig('fig/eigenvalues')
+fig.clear()
 
 
-
-plt.hist([n[1] for n in seed], bins=[n*3 for n in range(0,66)],normed=False)
 
 averagee_bacon = sum([rg.node[d]['bacon'] for d in rg.nodes])/rg.number_of_nodes()
+fig = plt.figure(num=None, figsize=(15, 10), dpi=80, facecolor='w', edgecolor='k')
+nx.draw_networkx(rg, pos=pos_a, arrows=False, with_labels=True, node_size=[200 + ((averagee_bacon-rg.node[d]['bacon'])*50) for d in rg.nodes], width=0.1, style='dashed', cmap = plt.get_cmap("viridis_r"), node_color=[(averagee_bacon-rg.node[d]['bacon']) for d in rg.nodes],label=seed)
+fig.savefig('fig/eigenvalues')
+fig.clear()
 
-nx.draw_networkx(rg, pos=pos_a, arrows=False, with_labels=False, node_size=[200 + ((averagee_bacon-rg.node[d]['bacon'])*50) for d in rg.nodes], width=0.1, style='dashed', cmap = plt.get_cmap("viridis"), node_color=[(averagee_bacon-rg.node[d]['bacon']) for d in rg.nodes],label=seed)
-plt.show()
-plt.clf()
-plt.cla()
 
-"""
 
 
 eigenvector_centrality = nx.eigenvector_centrality(rg,max_iter=300)
@@ -288,29 +284,21 @@ for k,v in ord_lc[0:5]:
 
 fig = plt.figure(num=None, figsize=(15, 10), dpi=80, facecolor='w', edgecolor='k')
 nx.draw_networkx(rg, pos=pos_a,arrows=False, with_labels=True,node_size=[(1000*eigenvector_centrality[v])+20 for v in rg.nodes],width=0.1,style='dashed',cmap = plt.get_cmap("viridis_r"),node_color=[eigenvector_centrality[v] for v in rg.nodes],labels=labels)
-fig.show()
 fig.savefig('fig/eigenvalues')
-plt.clf()
-plt.cla()
+fig.clear()
 
-
-
-nx.draw_networkx(rg, pos=pos_a,arrows=False, with_labels=True,node_size=[(1000*eigenvector_centrality[v])+20 for v in rg.nodes],width=0.1,style='dashed',cmap = plt.get_cmap("viridis_r"),node_color=[eigenvector_centrality[v] for v in rg.nodes],labels=labels)
-plt.show()
-plt.clf()
-plt.cla()
 
 
 communities = nx.clustering(rg)
 ord_lc=sorted(communities.items(),key=itemgetter(1),reverse=True)
 labels = {}
-for k,v in ord_lc[0:5]:
+for k,v in ord_lc[0:15]:
     labels[k]=k
 trg = rg.copy()
-nx.draw_networkx(trg, pos=pos_a,arrows=True, with_labels=False,node_size=[200*communities[v]+20 for v in rg],width=0.1,style='dashed',cmap = plt.get_cmap("viridis"),node_color=[communities[v] for v in rg],labels=labels )
-plt.show()
-plt.clf()
-plt.cla()
+fig = plt.figure(num=None, figsize=(15, 10), dpi=80, facecolor='w', edgecolor='k')
+nx.draw_networkx(trg, pos=pos_a,arrows=True, with_labels=True,node_size=[200*communities[v]+20 for v in rg],width=0.1,style='dashed',cmap = plt.get_cmap("viridis"),node_color=[communities[v] for v in rg],labels=labels )
+fig.savefig('fig/communities')
+fig.clear()
 
 
 
@@ -319,11 +307,10 @@ ord_lc=sorted(communities.items(),key=itemgetter(1),reverse=True)
 labels = {}
 for k,v in ord_lc[0:5]:
     labels[k]=k
-trg = rg.copy()
+fig = plt.figure(num=None, figsize=(15, 10), dpi=80, facecolor='w', edgecolor='k')
 nx.draw_networkx(rg, pos=pos_a,arrows=False, with_labels=False,node_size=[200*communities[v]+20 for v in rg],width=0.1,style='dashed',cmap = plt.get_cmap("viridis"),node_color=[communities[v] for v in rg] )
-plt.show()
-plt.clf()
-plt.cla()
+fig.savefig('fig/communities_square')
+fig.clear()
 
 
 bridges = [b for b in nx.bridges(rg)]
@@ -332,27 +319,12 @@ def getBridgeSize(bridges,node):
         return 250
     else:
         return 25
+
 bridge_sizes = [getBridgeSize(bridges,n) for n in rg]
+fig = plt.figure(num=None, figsize=(15, 10), dpi=80, facecolor='w', edgecolor='k')
 nx.draw_networkx(rg, pos=pos_a,arrows=False, with_labels=False,node_size=bridge_sizes,width=0.1,style='dashed',cmap = plt.get_cmap("viridis"),node_color=bridge_sizes )
-plt.show()
-plt.clf()
-plt.cla()
-
-
-
-communities = nx.clustering(rg,weight="count")
-nx.draw_networkx(rg, pos=pos_a,arrows=False, with_labels=False,node_size=[200*communities[v]+20 for v in rg],width=0.1,style='dashed',cmap = plt.get_cmap("viridis"),node_color=[communities[v] for v in rg] )
-plt.show()
-plt.clf()
-plt.cla()
-
-
-communities = nx.clustering(rg,weight="wl")
-nx.draw_networkx(rg, pos=pos_a,arrows=False, with_labels=False,node_size=[200*communities[v]+20 for v in rg],width=0.1,style='dashed',cmap = plt.get_cmap("viridis"),node_color=[communities[v] for v in rg] )
-plt.show()
-plt.clf()
-plt.cla()
-
+fig.savefig('fig/bridges')
+fig.clear()
 
 
 
